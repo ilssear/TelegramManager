@@ -15,7 +15,9 @@ from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import AddChatUserRequest
 from telethon.tl.functions.channels import InviteToChannelRequest
 from telethon.errors import UserPrivacyRestrictedError, PeerFloodError
-
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class TelegramGroupManager:
     def __init__(self, secrets_file):
@@ -27,6 +29,7 @@ class TelegramGroupManager:
         self.phone = secrets['phone']
         self.client = TelegramClient('session_name', self.api_id, self.api_hash)
         self.client.start(self.phone)
+        self._cached_group_types = {}
 
     async def get_group_type(self, group_id, verbose=True):
         """
@@ -35,6 +38,8 @@ class TelegramGroupManager:
         :param verbose: Whether to print the group type (default True).
         :return: String representing the group type ('basic_group', 'supergroup', 'channel').
         """
+        if group_id in self._cached_group_types:
+            return self._cached_group_types[group_id]
         entity = await self.client.get_entity(group_id)
         if entity.megagroup:
             group_type = "supergroup"
@@ -42,6 +47,7 @@ class TelegramGroupManager:
             group_type = "channel"
         else:
             group_type = "basic_group"
+        self._cached_group_types[group_id] = group_type
 
         if verbose:
             print(f"Group {entity.title} is a {group_type}.")
@@ -54,16 +60,14 @@ class TelegramGroupManager:
         :param target_group_id: Telegram ID of the target group.
         :param user_to_skip: ID of a user to exclude (optional).
         """
-        if users_to_skip is None:
-            users_to_skip = set()   # Default to an empty set
-
-        print("Fetching members from source group...")
+        users_to_skip = set(users_to_skip or [])
+        logger.info("Fetching members from source group...")
         source_members = await self.client.get_participants(source_group_id)
-        print(f"Source group members: {len(source_members)}")
+        logger.info(f"Source group members: {len(source_members)}")
 
-        print("Fetching members from target group...")
+        logger.info("Fetching members from target group...")
         target_members = await self.client.get_participants(target_group_id)
-        print(f"Target group members: {len(target_members)}")
+        logger.info(f"Target group members: {len(target_members)}")
 
         # Create a set of user IDs in the target group
         target_member_ids = {member.id for member in target_members}
@@ -73,10 +77,10 @@ class TelegramGroupManager:
             member for member in source_members
             if member.id not in target_member_ids and member.id not in users_to_skip
         ]
-        print(f"Users to add: {len(users_to_add)}")
+        logger.info(f"Users to add: {len(users_to_add)}")
         for member in users_to_add:
-            user_name = f"{member.first_name or ''} {member.last_name or ''}".strip()
-            print(f"User: {member.id}, Username: {member.username}, Name: {user_name}")
+            user_name = member.username or f"{member.first_name or ''} {member.last_name or ''}".strip() or "Unknown User"
+            print(f"User: {member.id}, Name: {user_name}")
 
         # Randomize the list of users to add
         random.shuffle(users_to_add)
@@ -87,22 +91,23 @@ class TelegramGroupManager:
 
         # Add users to the target group using the appropriate API
         for user in users_to_add:
-            user_name = user.username or f"{user.first_name or ''} {user.last_name or ''}".strip()
+            user_name = user.username or f"{user.first_name or ''} {user.last_name or ''}".strip() or "Unknown User"
             try:
                 if target_group_type == "basic_group":
-                    print(f"Adding {user.id} ({user_name}) to basic group...")
+                    logger.info(f"Adding {user_name} ({user.id}) to basic group...")
                     await self.client(AddChatUserRequest(chat_id=target_group_id, user_id=user.id, fwd_limit=0))
                 else:  # supergroup or channel
-                    print(f"Inviting {user.id} ({user_name}) to {target_group_type}...")
+                    logger.info(f"Inviting {user_name} ({user.id}) to {target_group_type}...")
                     await self.client(InviteToChannelRequest(channel=target_group_id, users=[user.id]))
                 await asyncio.sleep(10)  # Avoid hitting Telegram rate limits
             except UserPrivacyRestrictedError:
-                print(f"Cannot add {user.id} ({user.username}): Privacy settings restricted.")
+                logger.warning(f"Cannot add {user_name} ({user.id}): Privacy settings restricted.")
             except PeerFloodError:
-                print("Rate limit exceeded. Stopping to avoid ban.")
+                logger.error("Rate limit exceeded. Stopping to avoid ban.")
                 break
             except Exception as e:
-                print(f"Error adding {user.id}: {e}")
+                logger.error(f"Error adding {user_name} ({user.id}): {e}")
+        logger.info("Process completed successfully.")
 
     def run(self, source_group_id, target_group_id, user_to_skip=None):
         """
@@ -115,11 +120,10 @@ class TelegramGroupManager:
             self.add_users_from_group(source_group_id, target_group_id, user_to_skip)
         )
 
-
 if __name__ == "__main__":
     secrets_file = "api_secrets.json"
-    source_group_id = -1002433161186  # Source group ID
-    target_group_id = -1002429973404  # Target group ID
+    source_group_id = -1002433161186  # Source group ID (Old Quantum Wizards)
+    target_group_id = -1002429973404  # Target group ID (New Quantum Wizards)
     users_to_skip = []  # User ID to skip (optional)
 
     manager = TelegramGroupManager(secrets_file)

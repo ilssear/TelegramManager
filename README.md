@@ -51,6 +51,9 @@ Use the `t_connector.py` script to establish a connection to your Telegram accou
 python t_connector.py
 ```
 
+From the output, you can infer the Group IDs of the source and target groups / channels.
+
+
 ### Adding Users to a Group
 
 Use the `t_addusers.py` script to add users to a specific Telegram group.

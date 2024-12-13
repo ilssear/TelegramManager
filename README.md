@@ -13,5 +13,6 @@ Telegram Group Manager helper
 }
 ```
 
+- Ejecuta "python t_connector.py" y anota los Group IDs de los grupos de origen y destino
 - Ajusta los grupos source y target en "t_addusers.py"
 - Ejecuta "python t_addusers.py"

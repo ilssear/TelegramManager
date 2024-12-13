@@ -1,4 +1,5 @@
 api_secrets.json
+session_name.session
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

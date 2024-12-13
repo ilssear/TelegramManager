@@ -50,7 +50,7 @@ class TelegramGroupManager:
         self._cached_group_types[group_id] = group_type
 
         if verbose:
-            print(f"Group {entity.title} is a {group_type}.")
+            logger.info(f"Group {entity.title} is a {group_type}.")
         return group_type
 
     async def add_users_from_group(self, source_group_id, target_group_id, users_to_skip=None):
@@ -93,7 +93,7 @@ class TelegramGroupManager:
         for user in users_to_add:
             user_name = user.username or f"{user.first_name or ''} {user.last_name or ''}".strip() or "Unknown User"
             try:
-                if target_group_type == "basic_group":
+                if target_group_type in ["basic_group", "chat"]:
                     logger.info(f"Adding {user_name} ({user.id}) to basic group...")
                     await self.client(AddChatUserRequest(chat_id=target_group_id, user_id=user.id, fwd_limit=0))
                 else:  # supergroup or channel

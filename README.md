@@ -33,6 +33,14 @@ TelegramManager is a Python-based tool for managing Telegram groups and users us
 
    Replace the placeholders in the configuration JSON file (`config.json`) with your actual `api_id`, `api_hash`, and `phone` values. This file is not included in the repository to protect your credentials, but an example template is provided.
 
+   ```txt # Example api_secrets.json:
+   {
+       "api_id": "your_api_id",
+       "api_hash": "your_api_hash",
+       "phone": "your_phone_number"
+   }
+   ```
+
 ## Usage
 
 ### Connecting to Telegram

@@ -28,7 +28,7 @@ class TelegramGroupManager:
         self.client = TelegramClient('session_name', self.api_id, self.api_hash)
         self.client.start(self.phone)
 
-    async def identify_group_type(self, group_id, verbose=True):
+    async def get_group_type(self, group_id, verbose=True):
         """
         Identifies the type of a Telegram group or channel.
         :param group_id: Telegram ID or username of the group.
@@ -55,7 +55,7 @@ class TelegramGroupManager:
         :param user_to_skip: ID of a user to exclude (optional).
         """
         if users_to_skip is None:
-            users_to_skip = []
+            users_to_skip = set()   # Default to an empty set
 
         print("Fetching members from source group...")
         source_members = await self.client.get_participants(source_group_id)
@@ -83,7 +83,7 @@ class TelegramGroupManager:
         print("\n\nList of users shuffled.")
 
         # Identify the type of the target group
-        target_group_type = await self.identify_group_type(target_group_id, verbose=False)
+        target_group_type = await self.get_group_type(target_group_id, verbose=False)
 
         # Add users to the target group using the appropriate API
         for user in users_to_add:

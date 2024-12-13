@@ -1,10 +1,9 @@
 # TelegramManager
 Telegram Group Manager helper
 
-Primero debes registrarte en my.telegram.org y obtener una API ID y API Hash
-crea un entorno python y agrega la biblioteca de funciones de Telegram: "pip install telethon"
-
-Crea un archivo de texto api_secrets.json con los siguientes contenidos
+- Primero debes registrarte en my.telegram.org y obtener una API ID y API Hash. 
+- Luego crea un entorno Python y agrega la biblioteca de funciones de Telegram: "pip install telethon"
+- Crea un archivo de texto api_secrets.json con los siguientes contenidos
 
 ```
 {
@@ -14,6 +13,5 @@ Crea un archivo de texto api_secrets.json con los siguientes contenidos
 }
 ```
 
-Ajusta los grupos source y target en "t_addusers.py"
-
-ejecuta "python t_addusers.py"
+- Ajusta los grupos source y target en "t_addusers.py"
+- Ejecuta "python t_addusers.py"

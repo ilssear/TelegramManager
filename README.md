@@ -6,11 +6,13 @@ crea un entorno python y agrega la biblioteca de funciones de Telegram: "pip ins
 
 Crea un archivo de texto api_secrets.json con los siguientes contenidos
 
+```
 {
     "api_id": "123456",
     "api_hash": "abc123def456gh789ijklmnop",
     "phone": "+1234567890"
 }
+```
 
 Ajusta los grupos source y target en "t_addusers.py"
 
